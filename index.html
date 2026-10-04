@@ -11,7 +11,7 @@
   header { padding: 28px 20px 8px; max-width: 880px; margin: 0 auto; }
   h1 { font-size: 28px; font-weight: 600; margin: 0 0 6px; }
   p.lead { margin: 0; color: var(--muted); }
-  .bar { position: sticky; top: 0; background: rgba(250,248,245,.92); backdrop-filter: blur(8px); padding: 14px 20px 10px; }
+  .bar { position: sticky; top: 0; background: rgba(250,248,245,.92); backdrop-filter: blur(8px); padding: 14px 20px 10px; z-index: 2; }
   .wrap, main { max-width: 880px; margin: 0 auto; }
   input[type=search] { width: 100%; font: 18px/1.3 inherit; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
@@ -19,30 +19,38 @@
   button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
   main { padding: 8px 20px 48px; }
   .count { color: var(--muted); font-size: 14px; margin: 8px 0 12px; }
-  a.card { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; }
+  a.card, div.card { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; }
   a.card:hover { border-color: var(--accent); }
+  div.card { cursor: default; }
   .title { font-size: 17px; }
   .meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  h2.sec { font-size: 18px; margin: 22px 0 10px; font-weight: 600; }
+  .note { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Du lịch nước ngoài</h1>
-  <p class="lead">Gõ tên nước, visa, hoặc thành phố. Bấm một bài để mở bài viết gốc.</p>
+  <p class="lead">Gõ tên nước, visa, hoặc thành phố. Bài review mở tab mới; mục visa là danh sách tĩnh (không phụ thuộc Google Sheet).</p>
 </header>
 <div class="bar"><div class="wrap">
-  <input id="q" type="search" placeholder="Ví dụ: Nhật, Schengen, Bali, passport…" autofocus>
+  <input id="q" type="search" placeholder="Ví dụ: Nhật, Schengen, Bali, Brunei…" autofocus>
+  <div class="chips" id="modes"></div>
   <div class="chips" id="sections"></div>
   <div class="chips" id="regions"></div>
 </div></div>
 <main>
+  <p class="note">Dữ liệu snapshot 2026-10-05 từ Google Sheet mục lục review + miễn visa cho VN.</p>
   <div class="count" id="count"></div>
   <div id="list"></div>
 </main>
 <script>
-let ITEMS = [];
+let REVIEWS = [];
+let VISAS = [];
+const modesBox = document.getElementById("modes");
 const sectionsBox = document.getElementById("sections");
 const regionsBox = document.getElementById("regions");
+let mode = "Tất cả";
 let sec = "Tất cả", reg = "Mọi châu lục";
 const q = document.getElementById("q");
 function chips(el, labels, current, set) {
@@ -55,35 +63,147 @@ function chips(el, labels, current, set) {
     el.appendChild(b);
   });
 }
+function shortCat(c) {
+  if (!c) return "";
+  // Drop leading checkmark for chip labels
+  return c.replace(/^✅\s*/, "").replace(/\s*✅\s*$/, "").trim();
+}
 function render() {
-  const sections = ["Tất cả", ...new Set(ITEMS.map(x => x.section))];
-  const regions = ["Mọi châu lục", ...new Set(ITEMS.map(x => x.region).filter(Boolean))];
-  chips(sectionsBox, sections, sec, v => sec = v);
-  chips(regionsBox, regions, reg, v => reg = v);
+  const modes = ["Tất cả", "Bài review", "Miễn / xin Visa"];
+  chips(modesBox, modes, mode, v => { mode = v; });
+
+  const showReviews = mode === "Tất cả" || mode === "Bài review";
+  const showVisas = mode === "Tất cả" || mode === "Miễn / xin Visa";
+
+  const sections = ["Tất cả", ...new Set(REVIEWS.map(x => x.section))];
+  const regions = ["Mọi châu lục", ...new Set(REVIEWS.map(x => x.region).filter(Boolean))];
+  const visaCats = ["Tất cả loại visa", ...new Set(VISAS.filter(x => x.kind === "country").map(x => shortCat(x.category)).filter(Boolean))];
+
+  if (showReviews && !showVisas) {
+    chips(sectionsBox, sections, sec, v => sec = v);
+    chips(regionsBox, regions, reg, v => reg = v);
+  } else if (showVisas && !showReviews) {
+    chips(sectionsBox, visaCats, sec === "Tất cả" ? "Tất cả loại visa" : sec, v => sec = (v === "Tất cả loại visa" ? "Tất cả" : v));
+    regionsBox.innerHTML = "";
+  } else {
+    chips(sectionsBox, sections, sec, v => sec = v);
+    chips(regionsBox, regions, reg, v => reg = v);
+  }
+
   const needle = q.value.trim().toLowerCase();
-  const hit = ITEMS.filter(x => {
-    if (sec !== "Tất cả" && x.section !== sec) return false;
-    if (reg !== "Mọi châu lục" && x.region !== reg) return false;
-    if (!needle) return true;
-    return (x.title + " " + x.region + " " + x.author + " " + x.section).toLowerCase().includes(needle);
-  });
-  document.getElementById("count").textContent = hit.length + " bài";
   const list = document.getElementById("list");
   list.innerHTML = "";
-  hit.forEach(x => {
-    const a = document.createElement("a");
-    a.className = "card";
-    a.href = x.url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.innerHTML = '<div class="title"></div><div class="meta"></div>';
-    a.querySelector(".title").textContent = x.title;
-    a.querySelector(".meta").textContent = [x.section, x.region, x.author].filter(Boolean).join(" · ");
-    list.appendChild(a);
-  });
+  let n = 0;
+
+  if (showVisas) {
+    const visaHit = VISAS.filter(x => {
+      if (x.kind === "header") return !needle; // show headers only when not searching, or always with matches below
+      if (mode === "Miễn / xin Visa" && sec !== "Tất cả" && sec !== "Tất cả loại visa" && shortCat(x.category) !== sec) return false;
+      if (!needle) return x.kind !== "header" || true;
+      const blob = (x.raw + " " + x.country + " " + x.notes + " " + x.category).toLowerCase();
+      return blob.includes(needle);
+    });
+    // When searching, drop empty headers; when filtering by category keep headers for that category
+    const filtered = [];
+    let lastHeader = null;
+    visaHit.forEach(x => {
+      if (x.kind === "header") { lastHeader = x; return; }
+      if (needle && lastHeader) {
+        // include category header once before first match in that category
+        if (!filtered.length || filtered[filtered.length - 1].category !== x.category) {
+          if (shortCat(x.category)) {
+            filtered.push({ kind: "header", category: x.category, country: "", notes: x.category, raw: x.category, url: "" });
+          }
+        }
+        lastHeader = null;
+      } else if (!needle && lastHeader) {
+        filtered.push(lastHeader);
+        lastHeader = null;
+      }
+      filtered.push(x);
+    });
+
+    if (filtered.some(x => x.kind !== "header")) {
+      const h = document.createElement("h2");
+      h.className = "sec";
+      h.textContent = "Các nước miễn / xin Visa cho VN";
+      list.appendChild(h);
+    }
+    filtered.forEach(x => {
+      if (x.kind === "header") {
+        const h = document.createElement("h2");
+        h.className = "sec";
+        h.textContent = x.raw || x.category;
+        list.appendChild(h);
+        return;
+      }
+      n++;
+      const title = x.country ? x.country : (x.raw || x.notes);
+      const meta = [shortCat(x.category), x.notes].filter(Boolean).join(" · ");
+      if (x.url) {
+        const a = document.createElement("a");
+        a.className = "card";
+        a.href = x.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.innerHTML = '<div class="title"></div><div class="meta"></div>';
+        a.querySelector(".title").textContent = title;
+        a.querySelector(".meta").textContent = meta;
+        list.appendChild(a);
+      } else {
+        const d = document.createElement("div");
+        d.className = "card";
+        d.innerHTML = '<div class="title"></div><div class="meta"></div>';
+        d.querySelector(".title").textContent = (x.raw.startsWith("📌") ? x.raw : title);
+        d.querySelector(".meta").textContent = x.country ? shortCat(x.category) : meta;
+        // Prefer showing full raw line as title for countries
+        if (x.kind === "country") {
+          d.querySelector(".title").textContent = x.raw;
+          d.querySelector(".meta").textContent = shortCat(x.category);
+        }
+        list.appendChild(d);
+      }
+    });
+  }
+
+  if (showReviews) {
+    const hit = REVIEWS.filter(x => {
+      if (sec !== "Tất cả" && sec !== "Tất cả loại visa" && x.section !== sec) return false;
+      if (reg !== "Mọi châu lục" && x.region !== reg) return false;
+      if (!needle) return true;
+      return (x.title + " " + x.region + " " + x.author + " " + x.section).toLowerCase().includes(needle);
+    });
+    if (hit.length) {
+      const h = document.createElement("h2");
+      h.className = "sec";
+      h.textContent = "Bài review / kinh nghiệm";
+      list.appendChild(h);
+    }
+    hit.forEach(x => {
+      n++;
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = x.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.innerHTML = '<div class="title"></div><div class="meta"></div>';
+      a.querySelector(".title").textContent = x.title;
+      a.querySelector(".meta").textContent = [x.section, x.region, x.author].filter(Boolean).join(" · ");
+      list.appendChild(a);
+    });
+  }
+
+  document.getElementById("count").textContent = n + " mục";
 }
 q.addEventListener("input", render);
-fetch("travel-data.json").then(r => r.json()).then(data => { ITEMS = data; render(); });
+Promise.all([
+  fetch("travel-data.json").then(r => r.json()),
+  fetch("visa-data.json").then(r => r.json())
+]).then(([reviews, visas]) => {
+  REVIEWS = reviews;
+  VISAS = visas;
+  render();
+});
 </script>
 </body>
 </html>
