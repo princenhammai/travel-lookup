@@ -203,7 +203,8 @@ function render() {
   if (showReviews) {
     const hit = REVIEWS.filter(x => {
       if (sec !== "Tất cả" && sec !== "Tất cả loại visa" && x.section !== sec) return false;
-      if (reg !== "Mọi châu lục" && x.region !== reg) return false;
+      const americasVisa = (reg === "BẮC MỸ" || reg === "NAM MỸ") && x.region === "CHÂU MỸ" && x.section === "KINH NGHIỆM XIN VISA CÁC NƯỚC";
+      if (reg !== "Mọi châu lục" && x.region !== reg && !americasVisa) return false;
       if (!needle) return true;
       return (x.title + " " + x.region + " " + x.author + " " + x.section).toLowerCase().includes(needle);
     });
