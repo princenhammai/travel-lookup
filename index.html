@@ -198,7 +198,13 @@ function render() {
 q.addEventListener("input", render);
 const reviewParts=["data/reviews-01.json","data/reviews-02.json","data/reviews-03.json","data/reviews-04.json","data/reviews-05.json","data/reviews-06.json","data/reviews-07.json","data/reviews-08.json"];
 const visaParts=["data/visas-01.json","data/visas-02.json","data/visas-03.json","data/visas-04.json"];
-Promise.all([...reviewParts, ...visaParts].map(u => fetch(u).then(r => { if(!r.ok) throw new Error(u+" "+r.status); return r.json(); }))).then(parts => {
+function loadPart(u){
+  return fetch(u).then(r => { if(!r.ok) throw new Error(u+" "+r.status); return r.text(); }).then(t => {
+    try { return JSON.parse(t); }
+    catch(e) { return JSON.parse(t.replace(/}\s*$/, "")); }
+  });
+}
+Promise.all([...reviewParts, ...visaParts].map(loadPart)).then(parts => {
   REVIEWS = parts.slice(0, reviewParts.length).flat();
   VISAS = parts.slice(reviewParts.length).flat();
   render();
