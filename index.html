@@ -83,14 +83,19 @@ function revealChip(el) {
 function showList() {
   document.querySelector("main").scrollTo({ top: 0, behavior: "smooth" });
 }
-function chips(el, labels, current, set) {
+function chips(el, labels, current, set, clearTo) {
   el.innerHTML = "";
   labels.forEach(label => {
     const b = document.createElement("button");
     b.type = "button";
     b.textContent = SHORT[label] || label;
     b.className = label === current ? "on" : "";
-    b.onclick = () => { set(label); render(); showList(); };
+    b.onclick = () => {
+      if (clearTo !== undefined && label === current) set(clearTo);
+      else set(label);
+      render();
+      showList();
+    };
     el.appendChild(b);
   });
   revealChip(el);
@@ -112,14 +117,14 @@ function render() {
   const visaCats = ["Tất cả loại visa", ...new Set(VISAS.filter(x => x.kind === "country").map(x => shortCat(x.category)).filter(Boolean))];
 
   if (showReviews && !showVisas) {
-    chips(sectionsBox, sections, sec, v => sec = v);
-    chips(regionsBox, regions, reg, v => reg = v);
+    chips(sectionsBox, sections, sec, v => sec = v, "Tất cả");
+    chips(regionsBox, regions, reg, v => reg = v, "Mọi châu lục");
   } else if (showVisas && !showReviews) {
-    chips(sectionsBox, visaCats, sec === "Tất cả" ? "Tất cả loại visa" : sec, v => sec = (v === "Tất cả loại visa" ? "Tất cả" : v));
+    chips(sectionsBox, visaCats, sec === "Tất cả" ? "Tất cả loại visa" : sec, v => sec = (v === "Tất cả loại visa" ? "Tất cả" : v), "Tất cả loại visa");
     regionsBox.innerHTML = "";
   } else {
-    chips(sectionsBox, sections, sec, v => sec = v);
-    chips(regionsBox, regions, reg, v => reg = v);
+    chips(sectionsBox, sections, sec, v => sec = v, "Tất cả");
+    chips(regionsBox, regions, reg, v => reg = v, "Mọi châu lục");
   }
 
   const needle = q.value.trim().toLowerCase();
