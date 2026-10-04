@@ -11,19 +11,20 @@
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; overflow: hidden; font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
   .app { height: 100dvh; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
-  header { flex: none; padding: calc(10px + env(safe-area-inset-top)) 16px 0; }
+  header { flex: none; min-width: 0; padding: calc(10px + env(safe-area-inset-top)) 16px 0; }
   h1 { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; margin: 0; }
   p.lead { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
-  .bar { flex: none; padding: 10px 16px 6px; background: var(--bg); }
+  .bar { flex: none; min-width: 0; padding: 10px 16px 6px; background: var(--bg); }
+  .wrap { min-width: 0; }
   input[type=search] { width: 100%; max-width: 100%; font: 16px/1.3 inherit; padding: 12px 14px; border: 0; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1px var(--line); appearance: none; }
   input[type=search]:focus { outline: none; box-shadow: 0 0 0 2px var(--accent); }
   #modes { display: flex; margin-top: 10px; background: #ebe8e4; border-radius: 12px; padding: 3px; gap: 3px; }
-  #modes button { flex: 1 1 0; min-width: 0; min-height: 40px; border: 0; border-radius: 10px; background: transparent; padding: 8px 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  #modes button { flex: 1 1 0; min-width: 0; min-height: 44px; border: 0; border-radius: 10px; background: transparent; padding: 8px 4px; font-size: 13px; font-weight: 600; color: var(--muted); white-space: normal; }
   #modes button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
   .chips { display: flex; flex-wrap: nowrap; gap: 8px; width: 100%; min-width: 0; max-width: 100%; margin: 8px 0 0; padding: 2px 0 8px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; }
   .chips::-webkit-scrollbar { display: none; }
   .chips:empty { display: none; }
-  button { font: 15px/1.2 inherit; border: 0; background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 14px; min-height: 40px; white-space: nowrap; cursor: pointer; flex: 0 0 auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  button { font: 15px/1.2 inherit; border: 0; background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 14px; min-height: 44px; white-space: nowrap; cursor: pointer; flex: 0 0 auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .chips button.on { background: var(--ink); color: #fff; }
   main { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px calc(20px + env(safe-area-inset-bottom)); }
   .count { color: var(--muted); font-size: 13px; margin: 4px 0 10px; }
@@ -96,8 +97,7 @@ function chips(el, labels, current, set) {
 }
 function shortCat(c) {
   if (!c) return "";
-  // Drop leading checkmark for chip labels
-  return c.replace(/^✅\s*/, "").replace(/\s*✅\s*$/, "").trim();
+  return c.replace(/^\u2705\s*/, "").replace(/\s*\u2705\s*$/, "").trim();
 }
 function render() {
   const modes = ["Tất cả", "Bài review", "Miễn / xin Visa"];
@@ -184,7 +184,7 @@ function render() {
         const d = document.createElement("div");
         d.className = "plain";
         d.innerHTML = '<div class="title"></div><div class="meta"></div>';
-        d.querySelector(".title").textContent = (x.raw.startsWith("📌") ? x.raw : title);
+        d.querySelector(".title").textContent = (x.raw.startsWith("\ud83d\udccc") ? x.raw : title);
         d.querySelector(".meta").textContent = x.country ? shortCat(x.category) : meta;
         if (x.kind === "country") {
           d.querySelector(".title").textContent = x.raw;
