@@ -196,13 +196,14 @@ function render() {
   document.getElementById("count").textContent = n + " mục";
 }
 q.addEventListener("input", render);
-Promise.all([
-  fetch("travel-data.json").then(r => r.json()),
-  fetch("visa-data.json").then(r => r.json())
-]).then(([reviews, visas]) => {
-  REVIEWS = reviews;
-  VISAS = visas;
+const reviewParts=["data/reviews-01.json","data/reviews-02.json","data/reviews-03.json","data/reviews-04.json","data/reviews-05.json","data/reviews-06.json","data/reviews-07.json","data/reviews-08.json"];
+const visaParts=["data/visas-01.json","data/visas-02.json","data/visas-03.json","data/visas-04.json"];
+Promise.all([...reviewParts, ...visaParts].map(u => fetch(u).then(r => { if(!r.ok) throw new Error(u+" "+r.status); return r.json(); }))).then(parts => {
+  REVIEWS = parts.slice(0, reviewParts.length).flat();
+  VISAS = parts.slice(reviewParts.length).flat();
   render();
+}).catch(err => {
+  document.getElementById("count").textContent = "Không tải được dữ liệu: " + err.message;
 });
 </script>
 </body>
