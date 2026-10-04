@@ -2,36 +2,46 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mục lục du lịch nước ngoài</title>
 <style>
-  :root { --ink:#1c1917; --muted:#78716c; --line:#e7e5e4; --bg:#faf8f5; --card:#fff; --accent:#0f766e; }
+  :root { --ink:#1c1917; --muted:#78716c; --line:#e7e5e4; --bg:#faf8f5; --accent:#0f766e; }
   * { box-sizing: border-box; }
-  body { margin:0; font: 16px/1.45 Palatino, Georgia, serif; color:var(--ink); background:var(--bg); }
-  header { padding: 12px 16px 0; max-width: 880px; margin: 0 auto; }
-  h1 { font-size: 24px; font-weight: 600; margin: 0 0 2px; }
-  p.lead { margin: 0; color: var(--muted); }
-  .bar { position: sticky; top: 0; background: rgba(250,248,245,.92); backdrop-filter: blur(8px); padding: 10px 16px 8px; z-index: 2; }
-  .wrap, main { max-width: 880px; margin: 0 auto; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin:0; font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--ink); background:var(--bg); }
+  header, .wrap, main { max-width: 880px; margin: 0 auto; }
+  header { padding: 16px 16px 0; }
+  h1 { font-size: 22px; font-weight: 650; margin: 0 0 4px; letter-spacing: -0.02em; }
+  p.lead { margin: 0; color: var(--muted); font-size: 14px; }
+  .bar { position: sticky; top: 0; z-index: 2; background: rgba(250,248,245,.94); backdrop-filter: blur(10px); padding: 10px 16px 8px; border-bottom: 1px solid transparent; }
   .wrap { min-width: 0; }
-  input[type=search] { width: 100%; font: 18px/1.3 inherit; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  #sections, #regions { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-  button { font: 14px/1 inherit; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 14px; min-height: 44px; cursor: pointer; flex: 0 0 auto; }
+  input[type=search] { width: 100%; font: 16px/1.3 inherit; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; appearance: none; }
+  input[type=search]:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  #modes { display: flex; gap: 0; margin-top: 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  #modes button { flex: 1 1 0; border: 0; border-radius: 0; min-height: 44px; padding: 10px 6px; font-size: 14px; }
+  #modes button + button { border-left: 1px solid var(--line); }
+  #modes button.on { background: var(--ink); color: #fff; }
+  .chips { display: flex; flex-wrap: nowrap; gap: 8px; margin: 8px -16px 0; padding: 2px 16px 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  button { font: 15px/1.2 inherit; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 14px; min-height: 44px; cursor: pointer; flex: 0 0 auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-  main { padding: 8px 16px 48px; }
-  .count { color: var(--muted); font-size: 14px; margin: 8px 0 12px; }
-  a.card { display: block; width: 100%; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; }
-  a.card:hover, a.card:active { border-color: var(--accent); }
-  .plain { display: block; padding: 6px 0; margin: 0; border-bottom: 1px solid var(--line); }
-  @media (max-width: 640px) {
-    header { padding: 8px 12px 0; }
-    .bar, main { padding-left: 12px; padding-right: 12px; }
+  main { padding: 4px 16px calc(28px + env(safe-area-inset-bottom)); }
+  .count { color: var(--muted); font-size: 14px; margin: 10px 0 8px; }
+  a.card, .plain { position: relative; display: block; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 36px 14px 16px; margin: 0 0 8px; min-height: 56px; }
+  a.card { text-decoration: none; color: inherit; }
+  a.card:active { border-color: var(--accent); background: #f0fdfa; }
+  a.card::after { content: "›"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 22px; line-height: 1; }
+  .plain { padding-right: 16px; }
+  .title { font-size: 16px; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  h2.sec { font-size: 15px; margin: 16px 0 8px; font-weight: 650; }
+  .note { display: none; }
+  @media (min-width: 720px) {
+    header { padding-top: 28px; }
+    h1 { font-size: 28px; }
+    p.lead { font-size: 16px; }
+    .note { display: block; color: var(--muted); font-size: 13px; margin: 8px 0 0; }
   }
-  .title { font-size: 17px; }
-  .meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
-  h2.sec { font-size: 18px; margin: 22px 0 10px; font-weight: 600; }
-  .note { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
 </style>
 </head>
 <body>
@@ -59,16 +69,37 @@ const regionsBox = document.getElementById("regions");
 let mode = "Tất cả";
 let sec = "Tất cả", reg = "Mọi châu lục";
 const q = document.getElementById("q");
+const SHORT = {
+  "KINH NGHIỆM DU LỊCH": "Du lịch",
+  "KINH NGHIỆM XIN VISA CÁC NƯỚC": "Xin visa",
+  "ĐỊA DANH": "Địa danh"
+};
+function revealChip(el) {
+  const b = el.querySelector(".on");
+  if (!b) return;
+  const er = el.getBoundingClientRect();
+  const r = b.getBoundingClientRect();
+  if (r.left < er.left + 8 || r.right > er.right - 24) {
+    el.scrollLeft += (r.left + r.width / 2) - (er.left + er.width / 2);
+  }
+}
+function showList() {
+  const bar = document.querySelector(".bar");
+  const list = document.getElementById("list");
+  const top = bar.getBoundingClientRect().bottom + 8;
+  window.scrollTo({ top: window.scrollY + list.getBoundingClientRect().top - top, behavior: "smooth" });
+}
 function chips(el, labels, current, set) {
   el.innerHTML = "";
   labels.forEach(label => {
     const b = document.createElement("button");
     b.type = "button";
-    b.textContent = label;
+    b.textContent = SHORT[label] || label;
     b.className = label === current ? "on" : "";
-    b.onclick = () => { set(label); render(); document.getElementById("list").scrollIntoView({block:"start"}); };
+    b.onclick = () => { set(label); render(); showList(); };
     el.appendChild(b);
   });
+  revealChip(el);
 }
 function shortCat(c) {
   if (!c) return "";
@@ -198,7 +229,12 @@ function render() {
     });
   }
 
-  document.getElementById("count").textContent = n + " mục";
+  const bits = [];
+  if (mode !== "Tất cả") bits.push(mode);
+  if (sec !== "Tất cả" && sec !== "Tất cả loại visa") bits.push(SHORT[sec] || sec);
+  if (reg !== "Mọi châu lục") bits.push(reg);
+  if (needle) bits.push(q.value.trim());
+  document.getElementById("count").textContent = n + " mục" + (bits.length ? " · " + bits.join(" · ") : "");
 }
 q.addEventListener("input", render);
 const reviewParts=["data/reviews-01.json","data/reviews-02.json","data/reviews-03.json","data/reviews-04.json","data/reviews-05.json","data/reviews-06.json","data/reviews-07.json","data/reviews-08.json"];
