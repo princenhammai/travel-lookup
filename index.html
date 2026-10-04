@@ -66,7 +66,7 @@ function chips(el, labels, current, set) {
     b.type = "button";
     b.textContent = label;
     b.className = label === current ? "on" : "";
-    b.onclick = () => { set(label); render(); };
+    b.onclick = () => { set(label); render(); document.getElementById("list").scrollIntoView({block:"start"}); };
     el.appendChild(b);
   });
 }
@@ -77,10 +77,11 @@ function shortCat(c) {
 }
 function render() {
   const modes = ["Tất cả", "Bài review", "Miễn / xin Visa"];
-  chips(modesBox, modes, mode, v => { mode = v; });
+  chips(modesBox, modes, mode, v => { mode = v; sec = "Tất cả"; reg = "Mọi châu lục"; });
 
+  const reviewFiltered = sec !== "Tất cả" || reg !== "Mọi châu lục";
   const showReviews = mode === "Tất cả" || mode === "Bài review";
-  const showVisas = mode === "Tất cả" || mode === "Miễn / xin Visa";
+  const showVisas = mode === "Miễn / xin Visa" || (mode === "Tất cả" && !reviewFiltered && !q.value.trim());
 
   const sections = ["Tất cả", ...new Set(REVIEWS.map(x => x.section))];
   const regions = ["Mọi châu lục", ...new Set(REVIEWS.map(x => x.region).filter(Boolean))];
