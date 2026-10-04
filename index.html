@@ -5,53 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mục lục du lịch nước ngoài</title>
 <style>
-  :root { --ink:#1c1917; --muted:#78716c; --line:#e7e5e4; --bg:#faf8f5; --accent:#0f766e; }
+  :root { --ink:#1c1917; --muted:#78716c; --line:#e7e5e4; --bg:#f6f4f1; --accent:#0f766e; }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin:0; font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--ink); background:var(--bg); }
-  header, .wrap, main { max-width: 880px; margin: 0 auto; }
-  header { padding: 16px 16px 0; }
-  h1 { font-size: 22px; font-weight: 650; margin: 0 0 4px; letter-spacing: -0.02em; }
-  p.lead { margin: 0; color: var(--muted); font-size: 14px; }
-  .bar { position: sticky; top: 0; z-index: 2; background: rgba(250,248,245,.94); backdrop-filter: blur(10px); padding: 10px 16px 8px; border-bottom: 1px solid transparent; }
-  .wrap { min-width: 0; }
-  input[type=search] { width: 100%; font: 16px/1.3 inherit; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; appearance: none; }
-  input[type=search]:focus { outline: 2px solid var(--accent); border-color: transparent; }
-  #modes { display: flex; gap: 0; margin-top: 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  #modes button { flex: 1 1 0; border: 0; border-radius: 0; min-height: 44px; padding: 10px 6px; font-size: 14px; }
-  #modes button + button { border-left: 1px solid var(--line); }
-  #modes button.on { background: var(--ink); color: #fff; }
-  .chips { display: flex; flex-wrap: nowrap; gap: 8px; margin: 8px -16px 0; padding: 2px 16px 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  body { margin: 0; overflow: hidden; font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+  .app { height: 100dvh; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+  header { flex: none; padding: calc(10px + env(safe-area-inset-top)) 16px 0; }
+  h1 { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; margin: 0; }
+  p.lead { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .bar { flex: none; padding: 10px 16px 6px; background: var(--bg); }
+  input[type=search] { width: 100%; max-width: 100%; font: 16px/1.3 inherit; padding: 12px 14px; border: 0; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1px var(--line); appearance: none; }
+  input[type=search]:focus { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+  #modes { display: flex; margin-top: 10px; background: #ebe8e4; border-radius: 12px; padding: 3px; gap: 3px; }
+  #modes button { flex: 1 1 0; min-width: 0; min-height: 40px; border: 0; border-radius: 10px; background: transparent; padding: 8px 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  #modes button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .chips { display: flex; flex-wrap: nowrap; gap: 8px; width: 100%; min-width: 0; max-width: 100%; margin: 8px 0 0; padding: 2px 0 8px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; }
   .chips::-webkit-scrollbar { display: none; }
-  button { font: 15px/1.2 inherit; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 14px; min-height: 44px; cursor: pointer; flex: 0 0 auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-  main { padding: 4px 16px calc(28px + env(safe-area-inset-bottom)); }
-  .count { color: var(--muted); font-size: 14px; margin: 10px 0 8px; }
-  a.card, .plain { position: relative; display: block; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 36px 14px 16px; margin: 0 0 8px; min-height: 56px; }
-  a.card { text-decoration: none; color: inherit; }
-  a.card:active { border-color: var(--accent); background: #f0fdfa; }
-  a.card::after { content: "›"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 22px; line-height: 1; }
-  .plain { padding-right: 16px; }
-  .title { font-size: 16px; font-weight: 600; }
-  .meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
-  h2.sec { font-size: 15px; margin: 16px 0 8px; font-weight: 650; }
+  .chips:empty { display: none; }
+  button { font: 15px/1.2 inherit; border: 0; background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 14px; min-height: 40px; white-space: nowrap; cursor: pointer; flex: 0 0 auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .chips button.on { background: var(--ink); color: #fff; }
+  main { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .count { color: var(--muted); font-size: 13px; margin: 4px 0 10px; }
   .note { display: none; }
-  @media (min-width: 720px) {
-    header { padding-top: 28px; }
-    h1 { font-size: 28px; }
-    p.lead { font-size: 16px; }
-    .note { display: block; color: var(--muted); font-size: 13px; margin: 8px 0 0; }
-  }
+  a.card, .plain { position: relative; display: block; max-width: 100%; background: #fff; border-radius: 16px; padding: 14px 36px 14px 14px; margin: 0 0 8px; min-height: 56px; }
+  a.card { text-decoration: none; color: inherit; }
+  a.card:active { background: #f0fdfa; }
+  a.card::after { content: "›"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #a8a29e; font-size: 22px; }
+  .plain { padding-right: 14px; }
+  .title, .meta, h1, h2, p { overflow-wrap: anywhere; }
+  .title { font-size: 16px; font-weight: 650; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  h2.sec { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 14px 0 8px; font-weight: 650; }
 </style>
 </head>
 <body>
+<div class="app">
 <header>
   <h1>Du lịch nước ngoài</h1>
   <p class="lead">Gõ tên nước, visa, hoặc thành phố. Bài review mở tab mới; mục visa là danh sách tĩnh (không phụ thuộc Google Sheet).</p>
 </header>
 <div class="bar"><div class="wrap">
   <input id="q" type="search" placeholder="Ví dụ: Nhật, Schengen, Bali, Brunei…" enterkeyhint="search">
-  <div class="chips" id="modes"></div>
+  <div id="modes"></div>
   <div class="chips" id="sections"></div>
   <div class="chips" id="regions"></div>
 </div></div>
@@ -84,10 +80,7 @@ function revealChip(el) {
   }
 }
 function showList() {
-  const bar = document.querySelector(".bar");
-  const list = document.getElementById("list");
-  const top = bar.getBoundingClientRect().bottom + 8;
-  window.scrollTo({ top: window.scrollY + list.getBoundingClientRect().top - top, behavior: "smooth" });
+  document.querySelector("main").scrollTo({ top: 0, behavior: "smooth" });
 }
 function chips(el, labels, current, set) {
   el.innerHTML = "";
@@ -253,5 +246,6 @@ Promise.all([...reviewParts, ...visaParts].map(loadPart)).then(parts => {
   document.getElementById("count").textContent = "Không tải được dữ liệu: " + err.message;
 });
 </script>
+</div>
 </body>
 </html>
