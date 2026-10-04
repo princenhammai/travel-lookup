@@ -8,20 +8,26 @@
   :root { --ink:#1c1917; --muted:#78716c; --line:#e7e5e4; --bg:#faf8f5; --card:#fff; --accent:#0f766e; }
   * { box-sizing: border-box; }
   body { margin:0; font: 16px/1.45 Palatino, Georgia, serif; color:var(--ink); background:var(--bg); }
-  header { padding: 28px 20px 8px; max-width: 880px; margin: 0 auto; }
-  h1 { font-size: 28px; font-weight: 600; margin: 0 0 6px; }
+  header { padding: 12px 16px 0; max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 2px; }
   p.lead { margin: 0; color: var(--muted); }
-  .bar { position: sticky; top: 0; background: rgba(250,248,245,.92); backdrop-filter: blur(8px); padding: 14px 20px 10px; z-index: 2; }
+  .bar { position: sticky; top: 0; background: rgba(250,248,245,.92); backdrop-filter: blur(8px); padding: 10px 16px 8px; z-index: 2; }
   .wrap, main { max-width: 880px; margin: 0 auto; }
+  .wrap { min-width: 0; }
   input[type=search] { width: 100%; font: 18px/1.3 inherit; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  button { font: 14px/1 inherit; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  #sections, #regions { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  button { font: 14px/1 inherit; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 14px; min-height: 44px; cursor: pointer; flex: 0 0 auto; }
   button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-  main { padding: 8px 20px 48px; }
+  main { padding: 8px 16px 48px; }
   .count { color: var(--muted); font-size: 14px; margin: 8px 0 12px; }
-  a.card, div.card { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; }
-  a.card:hover { border-color: var(--accent); }
-  div.card { cursor: default; }
+  a.card { display: block; width: 100%; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; }
+  a.card:hover, a.card:active { border-color: var(--accent); }
+  .plain { display: block; padding: 6px 0; margin: 0; border-bottom: 1px solid var(--line); }
+  @media (max-width: 640px) {
+    header { padding: 8px 12px 0; }
+    .bar, main { padding-left: 12px; padding-right: 12px; }
+  }
   .title { font-size: 17px; }
   .meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
   h2.sec { font-size: 18px; margin: 22px 0 10px; font-weight: 600; }
@@ -34,7 +40,7 @@
   <p class="lead">Gõ tên nước, visa, hoặc thành phố. Bài review mở tab mới; mục visa là danh sách tĩnh (không phụ thuộc Google Sheet).</p>
 </header>
 <div class="bar"><div class="wrap">
-  <input id="q" type="search" placeholder="Ví dụ: Nhật, Schengen, Bali, Brunei…" autofocus>
+  <input id="q" type="search" placeholder="Ví dụ: Nhật, Schengen, Bali, Brunei…" enterkeyhint="search">
   <div class="chips" id="modes"></div>
   <div class="chips" id="sections"></div>
   <div class="chips" id="regions"></div>
@@ -57,6 +63,7 @@ function chips(el, labels, current, set) {
   el.innerHTML = "";
   labels.forEach(label => {
     const b = document.createElement("button");
+    b.type = "button";
     b.textContent = label;
     b.className = label === current ? "on" : "";
     b.onclick = () => { set(label); render(); };
@@ -97,19 +104,17 @@ function render() {
 
   if (showVisas) {
     const visaHit = VISAS.filter(x => {
-      if (x.kind === "header") return !needle; // show headers only when not searching, or always with matches below
+      if (x.kind === "header") return !needle;
       if (mode === "Miễn / xin Visa" && sec !== "Tất cả" && sec !== "Tất cả loại visa" && shortCat(x.category) !== sec) return false;
       if (!needle) return x.kind !== "header" || true;
       const blob = (x.raw + " " + x.country + " " + x.notes + " " + x.category).toLowerCase();
       return blob.includes(needle);
     });
-    // When searching, drop empty headers; when filtering by category keep headers for that category
     const filtered = [];
     let lastHeader = null;
     visaHit.forEach(x => {
       if (x.kind === "header") { lastHeader = x; return; }
       if (needle && lastHeader) {
-        // include category header once before first match in that category
         if (!filtered.length || filtered[filtered.length - 1].category !== x.category) {
           if (shortCat(x.category)) {
             filtered.push({ kind: "header", category: x.category, country: "", notes: x.category, raw: x.category, url: "" });
@@ -152,11 +157,10 @@ function render() {
         list.appendChild(a);
       } else {
         const d = document.createElement("div");
-        d.className = "card";
+        d.className = "plain";
         d.innerHTML = '<div class="title"></div><div class="meta"></div>';
         d.querySelector(".title").textContent = (x.raw.startsWith("📌") ? x.raw : title);
         d.querySelector(".meta").textContent = x.country ? shortCat(x.category) : meta;
-        // Prefer showing full raw line as title for countries
         if (x.kind === "country") {
           d.querySelector(".title").textContent = x.raw;
           d.querySelector(".meta").textContent = shortCat(x.category);
