@@ -1,0 +1,29 @@
+{
+  "snapshot_date": "2026-10-05",
+  "source_sheet_url": "https://docs.google.com/spreadsheets/d/1bBZSX-9K6BQNAW3wI-zt1S_7LqwsgXmxECuZo0R5RZg",
+  "htmlview_url": "https://docs.google.com/spreadsheets/d/1bBZSX-9K6BQNAW3wI-zt1S_7LqwsgXmxECuZo0R5RZg/htmlview",
+  "tabs": [
+    {
+      "name": "Visa + Review",
+      "gid": "0",
+      "slug": "visa-review",
+      "csv": "travel-clone/visa-review.csv",
+      "json": "travel-clone/visa-review.json",
+      "bytes": 40009,
+      "sha256": "18d59a99aaca4cbc627cf6dc4d95f8a108759181d3a0c5920a090b82a7e605de",
+      "csv_rows": 281,
+      "export_status": "ok"
+    },
+    {
+      "name": "Các nước miễn Visa cho VN",
+      "gid": "1495900775",
+      "slug": "mien-visa-vn",
+      "csv": "travel-clone/mien-visa-vn.csv",
+      "json": "travel-clone/mien-visa-vn.json",
+      "bytes": 8610,
+      "sha256": "9d478714e589163f7ae7e94b490368bff763e628b895b7529fda455f3f1f7631",
+      "csv_rows": 78,
+      "export_status": "ok"
+    }
+  ]
+}
