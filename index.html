@@ -104,6 +104,25 @@ function shortCat(c) {
   if (!c) return "";
   return c.replace(/^\u2705\s*/, "").replace(/\s*\u2705\s*$/, "").trim();
 }
+function postIdOf(url) {
+  const seg = String(url || "").split(/[?#]/)[0].split("/").filter(Boolean).pop() || "";
+  return /^\d+$/.test(seg) ? seg : "";
+}
+function reviewTs(x) {
+  const id = postIdOf(x.url);
+  if (!id) return null;
+  return Number(BigInt(id) >> 22n) + 1293840000;
+}
+function fmtDate(ts) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Saigon",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  }).formatToParts(new Date(ts * 1000));
+  const g = type => parts.find(p => p.type === type).value;
+  return g("day") + "." + g("month") + "." + g("year");
+}
 function render() {
   const modes = ["Tất cả", "Bài review", "Miễn / xin Visa"];
   chips(modesBox, modes, mode, v => { mode = v; sec = "Tất cả"; reg = "Mọi châu lục"; });
@@ -208,10 +227,22 @@ function render() {
       if (!needle) return true;
       return (x.title + " " + x.region + " " + x.author + " " + x.section).toLowerCase().includes(needle);
     });
+    hit.sort((a, b) => {
+      const ta = reviewTs(a), tb = reviewTs(b);
+      if (ta == null && tb == null) return 0;
+      if (ta == null) return 1;
+      if (tb == null) return -1;
+      return tb - ta;
+    });
     if (hit.length) {
       const h = document.createElement("h2");
       h.className = "sec";
-      h.textContent = "Bài review / kinh nghiệm";
+      const dated = hit.map(reviewTs).filter(t => t != null);
+      let label = "Bài review / kinh nghiệm";
+      if (dated.length) {
+        label += " · " + fmtDate(Math.max(...dated)) + " → " + fmtDate(Math.min(...dated));
+      }
+      h.textContent = label;
       list.appendChild(h);
     }
     hit.forEach(x => {
@@ -223,7 +254,9 @@ function render() {
       a.rel = "noopener";
       a.innerHTML = '<div class="title"></div><div class="meta"></div>';
       a.querySelector(".title").textContent = x.title;
-      a.querySelector(".meta").textContent = [x.section, x.region, x.author].filter(Boolean).join(" · ");
+      const ts = reviewTs(x);
+      const meta = [ts == null ? "" : fmtDate(ts), x.section, x.region, x.author].filter(Boolean).join(" · ");
+      a.querySelector(".meta").textContent = meta;
       list.appendChild(a);
     });
   }
